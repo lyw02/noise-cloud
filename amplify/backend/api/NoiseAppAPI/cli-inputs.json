@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "paths": {
+    "/data": {
+      "name": "/data",
+      "lambdaFunction": "dataFn",
+      "permissions": {
+        "setting": "open"
+      }
+    },
+    "/openData": {
+      "name": "/openData",
+      "lambdaFunction": "openDataFn",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create",
+          "read",
+          "update",
+          "delete"
+        ]
+      }
+    },
+    "/openDataCron": {
+      "name": "/openDataCron",
+      "lambdaFunction": "openDataCronFn",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create",
+          "read"
+        ]
+      }
+    }
+  }
+}

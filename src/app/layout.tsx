@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Header from "@/components/header";
 import Container from "@/components/container";
+import AuthWrapper from "@/components/auth-wrapper";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -30,10 +31,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-y-scroll`}
       >
-        <Container>
-          <Header />
-          {children}
-        </Container>
+        <AuthWrapper>
+          <Container>
+            <Header />
+            {children}
+          </Container>
+        </AuthWrapper>
       </body>
     </html>
   );
