@@ -1,3 +1,5 @@
+"use client"
+
 import { Loader2 } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -12,6 +14,7 @@ import { DataTable, HeaderWithTooltip } from "@/components/data-table";
 import { useToast } from "@/hooks/use-toast";
 import Form from "./open-data-tab-form";
 import { OpenDataRecord } from "@/lib/types";
+import { useState } from "react";
 // import { uploadOpenData } from "@/api/openDataApi";
 
 interface OpenDataTabProps {}
@@ -103,7 +106,7 @@ const columns: ColumnDef<OpenDataRecord>[] = [
 
 export default function OpenDataTab({}: OpenDataTabProps) {
   
-//   const [openDataRecord, setOpenDataRecord] = useState<OpenDataRecord[]>();
+  const [openDataRecord, setOpenDataRecord] = useState<OpenDataRecord[]>();
 
 //   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 //     e.preventDefault();
@@ -180,7 +183,7 @@ export default function OpenDataTab({}: OpenDataTabProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Form />
+          <Form setOpenDataRecord={setOpenDataRecord} />
           {/* <Button
             onClick={handleUpload}
             variant="outline"
@@ -192,9 +195,9 @@ export default function OpenDataTab({}: OpenDataTabProps) {
           </Button> */}
           <br />
           {/* {isLoading && <p>Searching data...</p>} */}
-          {/* {openDataRecord && (
+          {openDataRecord && (
             <DataTable columns={columns} data={openDataRecord.reverse()} />
-          )} */}
+          )}
         </CardContent>
         <CardFooter></CardFooter>
       </Card>

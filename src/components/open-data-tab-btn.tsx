@@ -1,11 +1,12 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
 import { Button as SnButton } from "./ui/button";
+import {Loader2} from "lucide-react"
 
-export default function Button() {
-  const { pending } = useFormStatus();
+export default function Button({ isLoading }: { isLoading: boolean }) {
   return (
-    <SnButton type="submit">{pending ? "Loading..." : "Search data"}</SnButton>
+    <SnButton type="submit">
+      {isLoading ? <Loader2 className="animate-spin" /> : "Search data"}
+    </SnButton>
   );
 }
