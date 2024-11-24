@@ -39,12 +39,15 @@
         },
         "openDataFn": {
           "deploymentBucketName": "amplify-noiseapp-dev-f8571-deployment",
-          "s3Key": "amplify-builds/openDataFn-53667a4a637635625079-build.zip"
+          "s3Key": "amplify-builds/openDataFn-4c4e65536c3649684379-build.zip"
         }
       },
       "storage": {
         "NoiseDataByOpenAPI": {},
         "NoiseDataByUser": {}
+      },
+      "api": {
+        "NoiseAppAPI": {}
       }
     }
   }

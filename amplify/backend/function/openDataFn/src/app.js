@@ -84,29 +84,54 @@ app.get(path, async function (req, res) {
  ************************************/
 
 app.get(path + hashKeyPath, async function (req, res) {
-  const condition = {};
-  condition[partitionKeyName] = {
-    ComparisonOperator: "EQ",
+  const monitor = req.params.monitor
+  const start = req.query.start;
+  const end = req.query.end;
+
+  if (!start || !end) {
+    res.statusCode = 400;
+    return res.json({ error: "Missing parameters: start, or end" });
+  }
+
+  // const condition = {};
+  // condition[partitionKeyName] = {
+  //   ComparisonOperator: "EQ",
+  // };
+
+  // if (userIdPresent && req.apiGateway) {
+  //   condition[partitionKeyName]["AttributeValueList"] = [
+  //     req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH,
+  //   ];
+  // } else {
+  //   try {
+  //     condition[partitionKeyName]["AttributeValueList"] = [
+  //       convertUrlType(req.params[partitionKeyName], partitionKeyType),
+  //     ];
+  //   } catch (err) {
+  //     res.statusCode = 500;
+  //     res.json({ error: "Wrong column type " + err });
+  //   }
+  // }
+
+  const keyConditionExpression = "#monitor = :monitor and #datetime between :start and :end";
+
+  const expressionAttributeNames = {
+    "#monitor": "monitor",
+    "#datetime": "datetime"
   };
 
-  if (userIdPresent && req.apiGateway) {
-    condition[partitionKeyName]["AttributeValueList"] = [
-      req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH,
-    ];
-  } else {
-    try {
-      condition[partitionKeyName]["AttributeValueList"] = [
-        convertUrlType(req.params[partitionKeyName], partitionKeyType),
-      ];
-    } catch (err) {
-      res.statusCode = 500;
-      res.json({ error: "Wrong column type " + err });
-    }
-  }
+  const expressionAttributeValues = {
+    ":monitor": monitor,
+    ":start": start,
+    ":end": end
+  };
 
   let queryParams = {
     TableName: tableName,
-    KeyConditions: condition,
+    // KeyConditions: condition,
+    KeyConditionExpression: keyConditionExpression,
+    ExpressionAttributeNames: expressionAttributeNames,
+    ExpressionAttributeValues: expressionAttributeValues
   };
 
   try {
