@@ -6,6 +6,7 @@ function MapAPIWrapper({ children }: { children: React.ReactNode }) {
   return (
     <APIProvider
       apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}
+      language="en-UK"
       onLoad={() => console.log("Maps API has loaded.")}
     >
       {children}

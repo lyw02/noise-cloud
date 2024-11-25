@@ -68,6 +68,16 @@ export default function Map({ setMonitor }: MapProps) {
           mapId="6b9f6211196e3efe"
           defaultZoom={11}
           defaultCenter={{ lat: 53.369864, lng: -6.258966 }}
+          fullscreenControl={false}
+          mapTypeControl={false}
+          zoomControl={false}
+          scaleControl={false}
+          streetViewControl={false}
+          rotateControl={false}
+          cameraControl={false}
+          clickableIcons={false}
+          disableDefaultUI
+          reuseMaps
         >
           <PositionMarkers positions={monitorLocations} />
         </GMap>
