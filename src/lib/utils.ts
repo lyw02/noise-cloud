@@ -1,11 +1,16 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { Monitor } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const monitors = [
+export function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export const monitors: Monitor[] = [
   {
     serial_number: "10.1.1.1",
     label: "Noise 1",

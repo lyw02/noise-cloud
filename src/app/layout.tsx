@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/header";
 import Container from "@/components/container";
 import AuthWrapper from "@/components/auth-wrapper";
+import MapAPIWrapper from "@/components/map-api-wrapper";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,12 +32,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-y-scroll`}
       >
-        <AuthWrapper>
-          <Container>
-            <Header />
-            {children}
-          </Container>
-        </AuthWrapper>
+        <MapAPIWrapper>
+          <AuthWrapper>
+            <Container>
+              <Header />
+              {children}
+            </Container>
+          </AuthWrapper>
+        </MapAPIWrapper>
       </body>
     </html>
   );

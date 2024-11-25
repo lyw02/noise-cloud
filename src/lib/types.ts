@@ -10,3 +10,12 @@ export interface OpenDataRecord {
   la90: number;
   lc90: number;
 }
+
+export interface Monitor {
+  serial_number: string;
+  label: string;
+  location: string;
+  latitude: string;
+  longitude: string;
+  last_calibrated: string;
+}
