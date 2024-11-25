@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Separator } from "./ui/separator";
+import { v4 as uuidv4 } from "uuid";
 
 const routes = [
   {
@@ -26,7 +27,7 @@ export default function Header() {
           <ul className="flex h-full items-center justify-end gap-x-4">
             {routes.map((route, index) => (
               <li
-                key={route.path}
+                key={uuidv4()}
                 className={cn("flex h-5 items-center space-x-4 hover:text-black transition", {
                   "text-black": activePathname === route.path,
                   "text-black/50": activePathname !== route.path,

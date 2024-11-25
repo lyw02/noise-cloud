@@ -9,6 +9,7 @@ import {
 } from "@vis.gl/react-google-maps";
 import { Card, CardContent } from "./ui/card";
 import { Monitor } from "@/lib/types";
+import { v4 as uuidv4 } from "uuid";
 
 type monitorPos = { key: string; location: google.maps.LatLngLiteral };
 
@@ -44,7 +45,7 @@ export default function Map({ setMonitor }: MapProps) {
       <>
         {props.positions.map((position: monitorPos) => (
           <AdvancedMarker
-            key={position.key}
+            key={uuidv4()}
             position={position.location}
             clickable
             onClick={handlePositionClick}

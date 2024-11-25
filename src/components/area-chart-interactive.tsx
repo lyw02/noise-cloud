@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/select";
 import { getData, getOpenDataFromDb } from "@/lib/api";
 import { OpenDataRecord } from "@/lib/types";
+import { v4 as uuidv4 } from "uuid";
 
 type timeRange = "7d" | "3d" | "1d";
 type indicator = Exclude<keyof OpenDataRecord, "monitor" | "datetime">;
@@ -227,7 +228,7 @@ export function AreaChartInteractive() {
             <SelectContent className="rounded-xl">
               {indicators.map((indicator) => (
                 <SelectItem
-                  key={indicator}
+                  key={uuidv4()}
                   value={indicator}
                   className="rounded-lg"
                 >

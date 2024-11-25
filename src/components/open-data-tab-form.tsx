@@ -18,6 +18,7 @@ import * as dayjs from "dayjs";
 import { z } from "zod";
 import { OpenDataRecord } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { v4 as uuidv4 } from "uuid";
 
 const datetimeFormat = "YYYY-MM-DD HH:mm:ss";
 const datetimeSchema = z.string().refine(
@@ -105,7 +106,7 @@ export default function Form({
           <SelectContent>
             {monitors.map((monitor) => (
               <SelectItem
-                key={monitor.serial_number}
+                key={uuidv4()}
                 value={monitor.serial_number}
               >
                 {monitor.serial_number}
