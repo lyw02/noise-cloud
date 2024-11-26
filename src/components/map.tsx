@@ -10,10 +10,28 @@ import {
 import { Card, CardContent } from "./ui/card";
 import { Monitor } from "@/lib/types";
 import { v4 as uuidv4 } from "uuid";
+import { useEffect, useMemo, useState } from "react";
+import { getAllUserData } from "@/lib/api";
+import * as dayjs from "dayjs";
+import { useToast } from "@/hooks/use-toast";
 
-type monitorPos = { key: string; location: google.maps.LatLngLiteral };
+interface UserPos {
+  latitude: number;
+  decibels: number;
+  userId: string;
+  longitude: number;
+  timestamp: number;
+}
 
-const monitorLocations: monitorPos[] = monitors.map((monitor) => ({
+interface PosMarker {
+  key: string;
+  location: google.maps.LatLngLiteral;
+  info?: {
+    [key: string]: any;
+  };
+}
+
+const monitorLocations: PosMarker[] = monitors.map((monitor) => ({
   key: `${monitor.label} (${monitor.serial_number})`,
   location: {
     lat: Number(monitor.latitude),
@@ -26,7 +44,7 @@ interface MapProps {
 }
 
 export default function Map({ setMonitor }: MapProps) {
-  function PositionMarkers(props: { positions: monitorPos[] }) {
+  function MonitorPositionMarkers(props: { positions: PosMarker[] }) {
     const map = useMap();
     const handlePositionClick = (e: google.maps.MapMouseEvent) => {
       if (!map) return;
@@ -43,7 +61,7 @@ export default function Map({ setMonitor }: MapProps) {
     };
     return (
       <>
-        {props.positions.map((position: monitorPos) => (
+        {props.positions.map((position: PosMarker) => (
           <AdvancedMarker
             key={uuidv4()}
             position={position.location}
@@ -52,8 +70,83 @@ export default function Map({ setMonitor }: MapProps) {
           >
             <Pin
               background={"#FBBC04"}
-              glyphColor={"#000"}
-              borderColor={"#000"}
+              glyphColor={"#fff"}
+              borderColor={"#fff"}
+            />
+          </AdvancedMarker>
+        ))}
+      </>
+    );
+  }
+
+  const [userLocations, setUserLocations] = useState<UserPos[]>();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getAllUserData();
+        const json = await res?.body.json();
+        setUserLocations(json as unknown as UserPos[]);
+      } catch (err: any) {
+        console.log(err);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const userPositionMarkers = useMemo(() => {
+    if (!userLocations) return [];
+    return userLocations.map(
+      (item) =>
+        ({
+          key: item.userId,
+          location: {
+            lat: item.latitude,
+            lng: item.longitude,
+          },
+          info: {
+            user: item.userId,
+            time: dayjs
+              .unix(item.timestamp)
+              .format("YYYY-MM-DD (ddd) HH:mm:ss"),
+            decibels: item.decibels,
+          },
+        } as PosMarker)
+    );
+  }, [userLocations]);
+
+  function UserPositionMarkers(props: { positions: PosMarker[] }) {
+    const { toast } = useToast();
+    return (
+      <>
+        {props.positions.map((position: PosMarker) => (
+          <AdvancedMarker
+            key={`${position.info!.time}${position.key}`}
+            position={position.location}
+            clickable
+            onClick={() => {
+              toast({
+                description: (
+                  <div className="flex flex-col justify-between w-full">
+                    <span className="flex justify-between">
+                      <b className="mr-5">User:</b> {position.info?.user}
+                    </span>
+                    <span className="flex justify-between">
+                      <b className="mr-5">Time:</b> {position.info?.time}
+                    </span>
+                    <span className="flex justify-between">
+                      <b className="mr-5">Decibels:</b>{" "}
+                      {position.info?.decibels}
+                    </span>
+                  </div>
+                ),
+              });
+            }}
+          >
+            <Pin
+              scale={0.5}
+              background={"#f00"}
+              glyphColor={"#fff"}
+              borderColor={"#fff"}
             />
           </AdvancedMarker>
         ))}
@@ -79,7 +172,8 @@ export default function Map({ setMonitor }: MapProps) {
           disableDefaultUI
           reuseMaps
         >
-          <PositionMarkers positions={monitorLocations} />
+          <MonitorPositionMarkers positions={monitorLocations} />
+          <UserPositionMarkers positions={userPositionMarkers} />
         </GMap>
       </CardContent>
     </Card>

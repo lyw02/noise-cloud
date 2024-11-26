@@ -30,3 +30,17 @@ export const getData = async (userId: string) => {
     console.log("GET call failed: ", e);
   }
 };
+
+export const getAllUserData = async () => {
+  try {
+    const restOperation = get({
+      apiName: "NoiseAppAPI",
+      path: `/data`,
+    });
+    const response = await restOperation.response;
+    console.log("GET call succeeded: ", response);
+    return response;
+  } catch (e: any) {
+    console.log("GET call failed: ", e);
+  }
+};

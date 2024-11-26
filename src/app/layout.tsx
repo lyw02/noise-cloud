@@ -6,6 +6,7 @@ import Container from "@/components/container";
 import AuthWrapper from "@/components/auth-wrapper";
 import MapAPIWrapper from "@/components/map-api-wrapper";
 import QueryClientWrapper from "@/components/query-client-wrapper";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -38,6 +39,7 @@ export default function RootLayout({
             <AuthWrapper>
               <Container>
                 <Header />
+                <Toaster />
                 {children}
               </Container>
             </AuthWrapper>
