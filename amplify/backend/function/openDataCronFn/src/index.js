@@ -9,7 +9,27 @@ if (process.env.ENV && process.env.ENV !== "NONE") {
   tableName = tableName + "-" + process.env.ENV;
 }
 
-const monitors = ["10.1.1.1"];
+const monitors = [
+  "10.1.1.1",
+  "01749",
+  "01508",
+  "10118",
+  "01548",
+  "10115",
+  "10.1.1.7",
+  "01870",
+  "01575",
+  "01737",
+  "10.1.1.11",
+  "10.1.1.12",
+  "01550",
+  "01534",
+  "01535",
+  "01509",
+  "01529",
+  "01530",
+  "01528",
+];
 
 const getLatestData = async (monitor) => {
   const start = Math.floor(Date.now() / 1000) - 60 * 20;
@@ -22,6 +42,7 @@ const getLatestData = async (monitor) => {
       }
     );
     const json = await res.json();
+    console.log("getLatestData", JSON.stringify(json))
     return json;
   } catch (error) {
     throw new Error(error);
@@ -40,7 +61,7 @@ const insert = async (item) => {
   };
   try {
     let data = await ddbDocClient.send(new PutCommand(putItemParams));
-    console.log({ success: "insert succeed!", data: data });
+    console.log({ success: "insert succeed!", data: data, item: JSON.stringify(item) });
   } catch (err) {
     console.log({ error: err });
   }
@@ -52,20 +73,39 @@ const insert = async (item) => {
 exports.handler = (event, context) => {
   console.log("Call handler");
   console.log(`monitors: ${monitors}`);
-  monitors.forEach(async (monitor) => {
-    try {
-      const res = await getLatestData(monitor);
-      console.log(`res: ${res}`);
-      res.forEach(async (item) => {
-        const itemWithMonitor = {
-          monitor,
-          ...item,
-        };
-        const insertRes = await insert(itemWithMonitor);
-        console.log(`insertRes: ${insertRes}`);
-      });
-    } catch (error) {
-      throw new Error(error);
-    }
-  });
+  for (const monitor of monitors) {
+    const insertLatestData = async (monitor) => {
+      try {
+        const res = await getLatestData(monitor);
+        console.log(`res: ${res}`);
+        res.forEach(async (item) => {
+          const itemWithMonitor = {
+            monitor,
+            ...item,
+          };
+          const insertRes = await insert(itemWithMonitor);
+          console.log(`insertRes: ${insertRes}`);
+        });
+      } catch (error) {
+        throw new Error(error);
+      }
+    };
+    insertLatestData(monitor);
+  }
+  // monitors.forEach(async (monitor) => {
+  //   try {
+  //     const res = await getLatestData(monitor);
+  //     console.log(`res: ${res}`);
+  //     res.forEach(async (item) => {
+  //       const itemWithMonitor = {
+  //         monitor,
+  //         ...item,
+  //       };
+  //       const insertRes = await insert(itemWithMonitor);
+  //       console.log(`insertRes: ${insertRes}`);
+  //     });
+  //   } catch (error) {
+  //     throw new Error(error);
+  //   }
+  // });
 };

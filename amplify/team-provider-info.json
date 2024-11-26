@@ -35,7 +35,7 @@
         },
         "openDataCronFn": {
           "deploymentBucketName": "amplify-noiseapp-dev-f8571-deployment",
-          "s3Key": "amplify-builds/openDataCronFn-484e674c586f6e636d51-build.zip"
+          "s3Key": "amplify-builds/openDataCronFn-7a554752584832736d4b-build.zip"
         },
         "openDataFn": {
           "deploymentBucketName": "amplify-noiseapp-dev-f8571-deployment",
