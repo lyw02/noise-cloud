@@ -142,7 +142,7 @@ const ChartTooltipContent = React.forwardRef<
       if (hideLabel || !payload?.length) {
         return null
       }
-      console.log("payload", payload)
+      // console.log("payload", payload)
 
       const [item] = payload
       const key = `${labelKey || item.dataKey || item.name || "value"}`

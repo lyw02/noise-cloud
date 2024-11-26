@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ComposedChart,
+  Line,
+  LineChart,
+  XAxis,
+} from "recharts";
 import { Dayjs } from "dayjs";
 const dayjs: (args: any) => Dayjs = require("dayjs");
 
@@ -30,7 +38,7 @@ import {
 import { getData, getOpenDataFromDb } from "@/lib/api";
 import { OpenDataRecord } from "@/lib/types";
 import { v4 as uuidv4 } from "uuid";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { monitors } from "@/lib/utils";
 import { MultiSelect } from "./ui/multi-select";
@@ -170,14 +178,15 @@ export function AreaChartInteractive() {
   const [timeRange, setTimeRange] = useState<timeRange>("7d");
   const [indicator, setIndicator] = useState<indicator>("laeq");
   const [monitor, setMonitor] = useState<string[]>(["10.1.1.1"]);
+  const [monitorToCache, setMonitorToCache] = useState<string>("10.1.1.1");
 
   const {
     data: chartDataRes,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["chartDataRes"],
-    queryFn: fetchData,
+    queryKey: ["chartDataRes", monitor],
+    queryFn: () => fetchData({ monitor }),
   });
 
   const filteredData = chartDataRes
@@ -198,10 +207,47 @@ export function AreaChartInteractive() {
       return datetime >= startDatetime;
     })
     .map((item) => ({
+      monitor: item.monitor,
       datetime: dayjs(item.datetime).format("YYYY-MM-DD HH:mm:ss"),
-      //   laeq: item.laeq,
       [indicator]: item[indicator],
     }));
+
+  const mergeData = (
+    data: typeof filteredData,
+    monitors: string[],
+    indicator: indicator
+  ) => {
+    const mergedMap = new Map();
+
+    data &&
+      data.forEach((item) => {
+        const { datetime, monitor, ...rest } = item;
+        const existingEntry = mergedMap.get(datetime) || { datetime };
+
+        mergedMap.set(datetime, {
+          ...existingEntry,
+          [monitor]: rest[indicator],
+        });
+      });
+
+    const result = Array.from(mergedMap.values())
+      .map((entry) => {
+        monitors.forEach((monitor) => {
+          if (!(monitor in entry)) {
+            entry[monitor] = null;
+          }
+        });
+        return entry;
+      })
+      .sort((a, b) => a.datetime - b.datetime);
+
+    return result;
+  };
+
+  console.log(
+    "==========mergeData: =========",
+    mergeData(filteredData, monitor, indicator)
+  );
 
   return (
     <Card>
@@ -222,28 +268,12 @@ export function AreaChartInteractive() {
             placeholder="Select monitors"
             onValueChange={(value: string[]) => {
               setMonitor(value);
+              const newSelected = findNewElement(monitor, value);
+              newSelected && setMonitorToCache(newSelected);
             }}
             className="w-[160px] rounded-lg sm:ml-auto"
             aria-label="Select monitors"
-          >
-            {/* <SelectTrigger
-              className="w-[160px] rounded-lg sm:ml-auto"
-              aria-label="Select monitors"
-            >
-              <SelectValue placeholder="10.1.1.1" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              {monitors.map((monitor) => (
-                <SelectItem
-                  key={uuidv4()}
-                  value={monitor.serial_number}
-                  className="rounded-lg"
-                >
-                  {`${monitor.label} (${monitor.serial_number})`}
-                </SelectItem>
-              ))}
-            </SelectContent> */}
-          </MultiSelect>
+          />
           <Select
             value={indicator}
             onValueChange={(value) => setIndicator(value as indicator)}
@@ -298,33 +328,14 @@ export function AreaChartInteractive() {
             config={chartConfig}
             className="aspect-auto h-[250px] w-full"
           >
-            <AreaChart data={filteredData}>
-              <defs>
-                <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor="var(--color-desktop)"
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor="var(--color-desktop)"
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-                <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor="var(--color-mobile)"
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor="var(--color-mobile)"
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-              </defs>
+            <ComposedChart
+              accessibilityLayer
+              data={mergeData(filteredData, monitor, indicator)}
+              margin={{
+                left: 12,
+                right: 12,
+              }}
+            >
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="datetime"
@@ -333,8 +344,11 @@ export function AreaChartInteractive() {
                 tickMargin={8}
                 minTickGap={32}
                 tickFormatter={(value) => {
-                  const date = dayjs(value);
-                  return date.format("MMM DD HH:mm");
+                  const date = new Date(value);
+                  return date.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  });
                 }}
               />
               <ChartTooltip
@@ -349,22 +363,25 @@ export function AreaChartInteractive() {
                   />
                 }
               />
-              <Area
-                dataKey={indicator}
+              <Line
+                dataKey="10.1.1.1"
+                key={uuidv4()}
                 type="natural"
+                stroke={`var(--color-mobile)`}
                 fill="url(#fillMobile)"
-                stroke="var(--color-mobile)"
-                stackId="a"
+                strokeWidth={1}
+                fillRule="evenodd"
+                dot={false}
               />
-              {/* <Area
-              dataKey="desktop"
-              type="natural"
-              fill="url(#fillDesktop)"
-              stroke="var(--color-desktop)"
-              stackId="a"
-            /> */}
-              <ChartLegend content={<ChartLegendContent />} />
-            </AreaChart>
+              <Line
+                dataKey="01749"
+                type="natural"
+                stroke={`var(--color-desktop)`}
+                strokeWidth={1}
+                fill="#000"
+                dot={false}
+              />
+            </ComposedChart>
           </ChartContainer>
         )}
       </CardContent>
@@ -372,12 +389,24 @@ export function AreaChartInteractive() {
   );
 }
 
-const fetchData = async () => {
+const fetchData = async ({ monitor }: { monitor: string[] }) => {
   const endTime = dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss");
   const startTime = dayjs(endTime)
     .subtract(7, "day")
     .format("YYYY-MM-DD HH:mm:ss");
-  const res = await getOpenDataFromDb("10.1.1.1", startTime, endTime);
-  const json = await res?.body.json();
-  return json as unknown as OpenDataRecord[];
+  const promises = monitor.map((id) =>
+    getOpenDataFromDb(id, startTime, endTime).then((res) => res?.body.json())
+  );
+  const results = await Promise.all(promises);
+  return results.flat() as unknown as OpenDataRecord[];
+};
+
+const findNewElement = (oldArr: string[], newArr: string[]): string | null => {
+  const monitorSet = new Set(oldArr);
+  for (const item of newArr) {
+    if (!monitorSet.has(item)) {
+      return item;
+    }
+  }
+  return null;
 };
