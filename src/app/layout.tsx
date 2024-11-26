@@ -5,6 +5,7 @@ import Header from "@/components/header";
 import Container from "@/components/container";
 import AuthWrapper from "@/components/auth-wrapper";
 import MapAPIWrapper from "@/components/map-api-wrapper";
+import QueryClientWrapper from "@/components/query-client-wrapper";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,14 +33,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-y-scroll`}
       >
-        <MapAPIWrapper>
-          <AuthWrapper>
-            <Container>
-              <Header />
-              {children}
-            </Container>
-          </AuthWrapper>
-        </MapAPIWrapper>
+        <QueryClientWrapper>
+          <MapAPIWrapper>
+            <AuthWrapper>
+              <Container>
+                <Header />
+                {children}
+              </Container>
+            </AuthWrapper>
+          </MapAPIWrapper>
+        </QueryClientWrapper>
       </body>
     </html>
   );
