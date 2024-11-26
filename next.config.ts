@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         source: "/open-api/data",
         destination: "https://data.smartdublin.ie/sonitus-api/api/data",
       },
+      {
+        source: "/open-api/hourly-averages",
+        destination: "https://data.smartdublin.ie/sonitus-api/api/hourly-averages",
+      },
     ];
   },
 };

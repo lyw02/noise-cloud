@@ -10,7 +10,7 @@ export default function MapSection() {
   return (
     <section className="flex flex-col md:flex-row justify-between w-full h-[50vh] gap-x-5 gap-y-5">
       <Map setMonitor={setMonitor} />
-      <MonitorListAndInfo monitor={monitor} />
+      <MonitorListAndInfo monitor={monitor} setMonitor={setMonitor} />
     </section>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button as SnButton } from "./ui/button";
-import {Loader2} from "lucide-react"
+import { Loader2 } from "lucide-react";
 
 export default function Button({ isLoading }: { isLoading: boolean }) {
   return (
