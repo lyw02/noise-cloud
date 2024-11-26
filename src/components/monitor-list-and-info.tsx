@@ -35,7 +35,7 @@ export default function MonitorListAndInfo({
               {`${monitor.label}`}
             </span>
           ) : (
-            <span className="flex items-center">Monitor List</span>
+            <span className="flex items-center">Hourly Average Noise</span>
           )}
         </CardTitle>
         <Separator />
