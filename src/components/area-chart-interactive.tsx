@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { Dayjs } from "dayjs";
 const dayjs: (args: any) => Dayjs = require("dayjs");
@@ -30,6 +30,10 @@ import {
 import { getData, getOpenDataFromDb } from "@/lib/api";
 import { OpenDataRecord } from "@/lib/types";
 import { v4 as uuidv4 } from "uuid";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
+import { monitors } from "@/lib/utils";
+import { MultiSelect } from "./ui/multi-select";
 
 type timeRange = "7d" | "3d" | "1d";
 type indicator = Exclude<keyof OpenDataRecord, "monitor" | "datetime">;
@@ -165,22 +169,16 @@ const chartConfig = {
 export function AreaChartInteractive() {
   const [timeRange, setTimeRange] = useState<timeRange>("7d");
   const [indicator, setIndicator] = useState<indicator>("laeq");
-  const [chartDataRes, setChartDataRes] = useState<OpenDataRecord[]>();
+  const [monitor, setMonitor] = useState<string[]>(["10.1.1.1"]);
 
-  useEffect(() => {
-    const endTime = dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss");
-    const startTime = dayjs(endTime)
-      .subtract(7, "day")
-      .format("YYYY-MM-DD HH:mm:ss");
-    const fetchData = async () => {
-      const res = await getOpenDataFromDb("10.1.1.1", startTime, endTime);
-      const json = await res?.body.json();
-      if (json) {
-        setChartDataRes(json as unknown as OpenDataRecord[]);
-      }
-    };
-    fetchData();
-  }, []);
+  const {
+    data: chartDataRes,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["chartDataRes"],
+    queryFn: fetchData,
+  });
 
   const filteredData = chartDataRes
     ?.filter((item) => {
@@ -215,6 +213,37 @@ export function AreaChartInteractive() {
           </CardDescription>
         </div>
         <section className="flex gap-x-4">
+          <MultiSelect
+            options={monitors.map((monitor) => ({
+              label: `${monitor.label} (${monitor.serial_number})`,
+              value: monitor.serial_number,
+            }))}
+            defaultValue={monitor}
+            placeholder="Select monitors"
+            onValueChange={(value: string[]) => {
+              setMonitor(value);
+            }}
+            className="w-[160px] rounded-lg sm:ml-auto"
+            aria-label="Select monitors"
+          >
+            {/* <SelectTrigger
+              className="w-[160px] rounded-lg sm:ml-auto"
+              aria-label="Select monitors"
+            >
+              <SelectValue placeholder="10.1.1.1" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              {monitors.map((monitor) => (
+                <SelectItem
+                  key={uuidv4()}
+                  value={monitor.serial_number}
+                  className="rounded-lg"
+                >
+                  {`${monitor.label} (${monitor.serial_number})`}
+                </SelectItem>
+              ))}
+            </SelectContent> */}
+          </MultiSelect>
           <Select
             value={indicator}
             onValueChange={(value) => setIndicator(value as indicator)}
@@ -262,79 +291,93 @@ export function AreaChartInteractive() {
         </section>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
-        >
-          <AreaChart data={filteredData}>
-            <defs>
-              <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-desktop)"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-desktop)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-              <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-mobile)"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-mobile)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="datetime"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(value) => {
-                const date = dayjs(value);
-                return date.format("MMM DD HH:mm");
-              }}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    const date = dayjs(value);
-                    return date.format("YYYY MMM DD (ddd) HH:mm:ss");
-                  }}
-                  indicator="dot"
-                />
-              }
-            />
-            <Area
-              dataKey={indicator}
-              type="natural"
-              fill="url(#fillMobile)"
-              stroke="var(--color-mobile)"
-              stackId="a"
-            />
-            {/* <Area
+        {error && "Failed to fetch"}
+        {isLoading && <Loader2 className="animate-spin" />}
+        {chartDataRes && (
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto h-[250px] w-full"
+          >
+            <AreaChart data={filteredData}>
+              <defs>
+                <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-desktop)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-desktop)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+                <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-mobile)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-mobile)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+              </defs>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="datetime"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                minTickGap={32}
+                tickFormatter={(value) => {
+                  const date = dayjs(value);
+                  return date.format("MMM DD HH:mm");
+                }}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(value) => {
+                      const date = dayjs(value);
+                      return date.format("YYYY MMM DD (ddd) HH:mm:ss");
+                    }}
+                    indicator="dot"
+                  />
+                }
+              />
+              <Area
+                dataKey={indicator}
+                type="natural"
+                fill="url(#fillMobile)"
+                stroke="var(--color-mobile)"
+                stackId="a"
+              />
+              {/* <Area
               dataKey="desktop"
               type="natural"
               fill="url(#fillDesktop)"
               stroke="var(--color-desktop)"
               stackId="a"
             /> */}
-            <ChartLegend content={<ChartLegendContent />} />
-          </AreaChart>
-        </ChartContainer>
+              <ChartLegend content={<ChartLegendContent />} />
+            </AreaChart>
+          </ChartContainer>
+        )}
       </CardContent>
     </Card>
   );
 }
+
+const fetchData = async () => {
+  const endTime = dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss");
+  const startTime = dayjs(endTime)
+    .subtract(7, "day")
+    .format("YYYY-MM-DD HH:mm:ss");
+  const res = await getOpenDataFromDb("10.1.1.1", startTime, endTime);
+  const json = await res?.body.json();
+  return json as unknown as OpenDataRecord[];
+};

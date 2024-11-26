@@ -5,7 +5,7 @@ import { Dayjs } from "dayjs";
 const dayjsFn: (args: any) => Dayjs = require("dayjs");
 import { v4 as uuidv4 } from "uuid";
 import { Loader2 } from "lucide-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 interface MonitorHourlyAvg {
   monitor: string;
