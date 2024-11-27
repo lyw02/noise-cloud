@@ -1,6 +1,6 @@
 "use client";
 
-import { monitors } from "@/lib/utils";
+import { cn, monitors, stringToColorHash } from "@/lib/utils";
 import {
   AdvancedMarker,
   Map as GMap,
@@ -14,6 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getAllUserData } from "@/lib/api";
 import * as dayjs from "dayjs";
 import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface UserPos {
   latitude: number;
@@ -138,6 +139,28 @@ export default function Map({ setMonitor }: MapProps) {
                       {position.info?.decibels}
                     </span>
                   </div>
+                ),
+                action: (
+                  <Avatar>
+                    <AvatarFallback
+                      // className={cn(
+                      //   stringToColorHash(position.info?.user).bgColor,
+                      //   stringToColorHash(position.info?.user).textColor
+                      // )}
+                      style={{
+                        backgroundColor: `#${stringToColorHash(
+                          position.info?.user
+                        ).bgColor.slice(5, -1)}`,
+                        color:
+                          stringToColorHash(position.info?.user).textColor ===
+                          "text-black"
+                            ? "#000"
+                            : "#FFF",
+                      }}
+                    >
+                      L
+                    </AvatarFallback>
+                  </Avatar>
                 ),
               });
             }}

@@ -164,3 +164,30 @@ export const monitors: Monitor[] = [
     last_calibrated: "2022-03-21",
   },
 ];
+
+export function stringToColorHash(str: string) {
+  // String hash
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    hash = hash & hash; // 32 bits
+  }
+
+  // Hash to RGB
+  const r = (hash >> 16) & 0xff;
+  const g = (hash >> 8) & 0xff;
+  const b = hash & 0xff;
+
+  // Calculate luminance based on WCAG (Web Content Accessibility Guidelines)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  const textColor = luminance > 0.7 ? "text-black" : "text-white";
+
+  const bgColor = `bg-[#${((1 << 24) + (r << 16) + (g << 8) + b)
+    .toString(16)
+    .slice(1)}]`;
+
+  return {
+    bgColor: bgColor,
+    textColor: textColor,
+  };
+}
