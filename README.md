@@ -2,11 +2,7 @@
 
 I use this web application to gather own data and open data. It includes an AWS serverless backend and a React frontend.
 
-To use this app:
-
-Visit the deployed version: [https://noise-monitor-cloud.vercel.app/](https://noise-monitor-cloud.vercel.app/)
-
-Or follow the instructions below to start locally:
+To use this app, follow the instructions below to start locally:
 
 ## 1. Depoly AWS serverless backend
 
