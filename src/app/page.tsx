@@ -1,15 +1,11 @@
+"use client";
+
 import { AreaChartInteractive } from "@/components/area-chart-interactive";
 import MapSection from "@/components/map-section";
 
-interface DataPageProps {
-  // searchParams: {
-  //   monitor: string;
-  // };
-}
+interface DataPageProps {}
 
 export default async function DataPage({}: DataPageProps) {
-  // const selectedMonitor = searchParams.monitor || null;
-
   return (
     <main className="flex flex-col mx-8 gap-y-5">
       <MapSection />

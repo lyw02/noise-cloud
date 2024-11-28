@@ -1,3 +1,5 @@
+"use client";
+
 import LiveNoiseTab from "@/components/live-noise-tab";
 import OpenDataTab from "@/components/open-data-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
