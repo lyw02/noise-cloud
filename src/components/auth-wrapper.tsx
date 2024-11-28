@@ -6,6 +6,7 @@ import { Amplify } from "aws-amplify";
 import awsconfig from "@/amplifyconfiguration.json";
 // import { AmplifyOutputs } from "@aws-amplify/core/internals/utils";
 
+// @ts-ignore
 Amplify.configure(awsconfig);
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
