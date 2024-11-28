@@ -1,5 +1,3 @@
-"use client";
-
 import { AreaChartInteractive } from "@/components/area-chart-interactive";
 import MapSection from "@/components/map-section";
 
