@@ -1,6 +1,6 @@
-# Noise Monitor Cloud - How to start
+# Noise Cloud - How to start
 
-I use this web application to gather own data and open data. It includes an AWS serverless backend and a React frontend.
+This web application includes an AWS serverless backend and a Nextjs frontend.
 
 To use this app, follow the instructions below to start locally:
 
