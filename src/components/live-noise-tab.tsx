@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardContent,
@@ -7,11 +9,22 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Form from "./live-noise-tab-form";
+import NoiseDisplayer from "./noise-displayer";
+import { useState } from "react";
+import { useAuthenticator } from "@aws-amplify/ui-react";
+import { Button } from "@/components/ui/button";
 
 interface LiveNoiseTabProps {
   children: React.ReactNode;
 }
 export default function LiveNoiseTab({ children }: LiveNoiseTabProps) {
+  const [isMonitoring, setIsMonitoring] = useState(false);
+
+  const { user } = useAuthenticator((context) => [context.user]);
+  const userId = user.signInDetails?.loginId;
+
+  if (!userId) return "Unauthorized user";
+
   return (
     <Card>
       <CardHeader>
@@ -22,10 +35,13 @@ export default function LiveNoiseTab({ children }: LiveNoiseTabProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className={`w-full mt-8 flex justify-center`}>
-        {children}
+        <NoiseDisplayer isMonitoring={isMonitoring} userId={userId} />
       </CardContent>
       <CardFooter>
-        <Form />
+        {/* <Form /> */}
+        <Button onClick={() => setIsMonitoring((prev) => !prev)}>
+          {isMonitoring ? "End monitoring" : "Start monitoring"}
+        </Button>
       </CardFooter>
     </Card>
   );

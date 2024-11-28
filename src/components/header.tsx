@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { Button } from "./ui/button";
-import { Terminal } from "lucide-react"
+import { Terminal } from "lucide-react";
 
 const routes = [
   {
@@ -37,7 +37,10 @@ export default function Header() {
   return (
     <header className="flex flex-col h-20 py-4 mx-8 w-auto">
       <div className="flex justify-between items-center">
-        <span className="flex items-center gap-x-2"><Terminal /><b>Noise Cloud</b></span>
+        <span className="flex items-center gap-x-2 select-none">
+          <Terminal />
+          <b>Noise Cloud</b>
+        </span>
         <nav className="flex justify-end gap-x-4 h-full">
           <ul className="flex justify-end gap-x-4 h-full items-center">
             {routes.map((route, index) => (

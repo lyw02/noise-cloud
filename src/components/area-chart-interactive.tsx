@@ -38,7 +38,11 @@ import {
 import { getData, getOpenDataFromDb } from "@/lib/api";
 import { OpenDataRecord } from "@/lib/types";
 import { v4 as uuidv4 } from "uuid";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { monitors } from "@/lib/utils";
 import { MultiSelect } from "./ui/multi-select";
@@ -88,17 +92,6 @@ const monitorColorConfig = {
 } as const;
 
 const chartConfig = {
-  // visitors: {
-  //   label: "Visitors",
-  // },
-  // desktop: {
-  //   label: "Desktop",
-  //   color: "hsl(var(--chart-1))",
-  // },
-  // mobile: {
-  //   label: "Mobile",
-  //   color: "hsl(var(--chart-2))",
-  // },
   ...monitorColorConfig,
   ...indicatorConfig,
 } satisfies ChartConfig;
@@ -107,7 +100,8 @@ export function AreaChartInteractive() {
   const [timeRange, setTimeRange] = useState<timeRange>("7d");
   const [indicator, setIndicator] = useState<indicator>("laeq");
   const [monitor, setMonitor] = useState<string[]>(["10.1.1.1"]);
-  const [monitorToCache, setMonitorToCache] = useState<string>("10.1.1.1");
+
+  const queryClient = useQueryClient();
 
   const {
     data: chartDataRes,
@@ -179,6 +173,21 @@ export function AreaChartInteractive() {
     mergeData(filteredData, monitor, indicator)
   );
 
+  // if (monitor.length === 1) {
+  //   const data = queryClient.getQueryData(["chartDataRes", monitor]);
+  //   const getPred = async (data: any) => {
+  //     if (!data) return
+  //     console.log("gettting");
+  //     const res = await fetch("http://120.78.144.29:33300/predict", {
+  //       method: "POST",
+  //       // body: JSON.stringify({ data: data }),
+  //     });
+  //     const json = await res.json();
+  //     console.log("&&&&&&&&&&", json);
+  //   };
+  //   getPred(data);
+  // }
+
   return (
     <Card>
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
@@ -198,8 +207,6 @@ export function AreaChartInteractive() {
             placeholder="Select monitors"
             onValueChange={(value: string[]) => {
               setMonitor(value);
-              const newSelected = findNewElement(monitor, value);
-              newSelected && setMonitorToCache(newSelected);
             }}
             className="w-[160px] rounded-lg sm:ml-auto"
             aria-label="Select monitors"
