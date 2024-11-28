@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "prebuild": "node src/generateConfig.js",
+    "build": "npm install --legacy-peer-deps && next build",
     "start": "next start",
     "lint": "next lint"
   },
